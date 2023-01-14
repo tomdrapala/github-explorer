@@ -23,7 +23,7 @@ source {environment-name}/bin/activate
 ```
 Environment activation on Windows:
 ```
-{<environment-name}\Scripts\activate.bat
+{environment-name}\Scripts\activate.bat
 ```
 
 - install requirements
