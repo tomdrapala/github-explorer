@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import FastAPI, HTTPException, Path, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from .utils import get_commits_count, get_rate_reset_time, get_repository_data
+from backend.utils import get_commits_count, get_rate_reset_time, get_repository_data
 
 app = FastAPI(title="GitHub Explorer API")
 
