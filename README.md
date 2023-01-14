@@ -61,6 +61,6 @@ npm run serve
 
 # Usage
 
-Main application page is available at: http://127.0.0.1:8080/ <br>
+With both backend and frontend servers running main application page is available at: http://127.0.0.1:8080/ <br>
 To list user repositories just provide a valid username and click `fetch` or press `enter`.<br><br>
 API endpoints used by the app (in this case a single endpoint) can be viewed at: http://127.0.0.1:8000/docs
