@@ -13,7 +13,7 @@ The frontend is prepared using [Vue.js](https://vuejs.org/) and the backend usin
 Backend requires having installed [python3](https://www.python.org/downloads/), [pip](https://pip.pypa.io/en/stable/installation/) and few libraries listed in `backend/requirements.txt`.<br>To avoid clashes with potentially allready installed libraries it is recommended to use virtual environment (such as [venv](https://docs.python.org/3/library/venv.html)).<br>
 
 ### Steps:
-- being in the main app folder (`github-explorerz) run below commands to create and activate environment
+- being in the main app folder (`github-explorer`) run below commands to create and activate environment
 ```
 python3 -m venv {environment-name}
 ```
