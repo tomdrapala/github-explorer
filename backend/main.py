@@ -1,9 +1,12 @@
 from datetime import datetime
+from typing import List
 
 from fastapi import FastAPI, HTTPException, Path, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.utils import get_commits_count, get_rate_reset_time, get_repository_data
+from backend.models import Repository
+from backend.utils import (get_commits_count, get_rate_reset_time,
+                           get_repository_data)
 
 app = FastAPI(title="GitHub Explorer API")
 
@@ -27,7 +30,7 @@ USERNAME_MAX_LENGTH = 39  # maximum username length allowed by GitHub
 # In real project I would move below endpoint to a dedicated file,
 # I am leaving it here for simplicity.
 
-@app.get('/{username}/', tags=["GitHub"])
+@app.get('/{username}/', tags=["GitHub"], response_model=List[Repository])
 async def get_user_repositories(username: str = Path(max_length=USERNAME_MAX_LENGTH)):
     """Retrieve basic information about GitHub repositories belonging to the given user."""
     data = get_repository_data(username)
