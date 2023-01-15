@@ -17,16 +17,16 @@ To avoid clashes with potentially already installed libraries it is recommended 
 ```
 python3 -m venv {environment-name}
 ```
-Environment activation on Linux/Mac:
-```
+- activate environment
+```bash
+# on Linux/Mac
 source {environment-name}/bin/activate
-```
-Environment activation on Windows:
-```
+
+# on Windows
 {environment-name}\Scripts\activate.bat
 ```
 
-- install requirements
+- install required libraries
 ```
 pip install -r backend/requirements.txt
 ```
