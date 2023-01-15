@@ -13,7 +13,7 @@ Backend requires having installed [python3](https://www.python.org/downloads/), 
 To avoid clashes with potentially already installed libraries it is recommended to use a virtual environment. There are various options but for this instruction I chose [venv](https://docs.python.org/3/library/venv.html) as it is part of Python’s standard library.<br>
 
 ### Steps:
-- from the main app directory (`github-explorer/`) run below commands to create and activate environment
+- from the main app directory (`github-explorer/`) run below command in your terminal to create environment
 ```
 python3 -m venv {environment-name}
 ```
@@ -38,10 +38,10 @@ uvicorn backend.main:app
 
 ## 2. Frontend
 
-Frontend requires installation of [Node.js](https://nodejs.org/en/download/).
+Frontend requires installation of [Node.js](https://nodejs.org/en/download/) (with npm).
 
 ### Steps:
-- starting from the main project directory move to `frontend/vue-app/`
+- in the new terminal tab, starting from the main project directory move to `frontend/vue-app/`
 ```
 cd frontend/vue-app/
 ```
