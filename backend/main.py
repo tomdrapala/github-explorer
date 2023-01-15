@@ -4,9 +4,8 @@ from typing import List
 from fastapi import FastAPI, HTTPException, Path, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.models import Repository
-from backend.utils import (get_commits_count, get_rate_reset_time,
-                           get_repository_data)
+from .models import Repository
+from .utils import (get_commits_count, get_rate_reset_time, get_repository_data)
 
 app = FastAPI(title="GitHub Explorer API")
 
@@ -54,12 +53,13 @@ async def get_user_repositories(username: str = Path(max_length=USERNAME_MAX_LEN
         data['content']['message'].startswith("API rate limit exceeded")
     ):
         # If the API rate limit has been reached return information about when will it be reset.
+        message = 'API rate limit exceeded, please try again'
         reset_time = get_rate_reset_time()
         if reset_time:
             wait_time = (reset_time - datetime.now()).seconds // 60
-            message = f"API rate limit exceeded, please try again in {wait_time} minutes."
+            message = message + f" in {wait_time} minutes."
         else:
-            message = "Something went wrong, please try again later."
+            message = message + " later."
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={"message": message}

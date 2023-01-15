@@ -31,9 +31,9 @@
           <a :href="repository.url" target="_blank">{{ repository.name }}</a>
         </h2>
         <ul>
-          <li>Description: {{ repository.description }}</li>
-          <li>Stars: {{ repository.stars }}</li>
-          <li>Commits: {{ repository.commits }}</li>
+          <li><b>Description:</b> {{ repository.description }}</li>
+          <li><b>Stars:</b> {{ repository.stars }}</li>
+          <li><b>Commits:</b> {{ repository.commits }}</li>
         </ul>
       </li>
     </ul>
@@ -120,11 +120,11 @@ header {
 }
 
 div {
-  margin: 1rem auto 3rem auto;
+  margin: 1rem auto;
 }
 
 input {
-  margin: auto 1rem;
+  margin: 1rem;
 }
 
 #repositories {
@@ -210,7 +210,6 @@ input {
   border-radius: 25px;
   border: 1px solid #c62828;
   background-color: #c62828;
-  /* background-color: #ff0077; */
   color: white;
   margin: 2rem auto;
   padding: 0.05rem 1rem;
@@ -226,6 +225,7 @@ input {
   font-size: 22px;
   line-height: 20px;
   transition: 0.3s;
+  /* transition: 3s; */
 }
 
 .closebtn:hover {
