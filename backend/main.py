@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from typing import List
 
@@ -5,7 +6,7 @@ from fastapi import FastAPI, HTTPException, Path, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from .models import Repository
-from .utils import (get_commits_count, get_rate_reset_time, get_repository_data)
+from .utils import COMMITS_URL, get_commit_count, get_rate_reset_time, get_repository_data
 
 app = FastAPI(title="GitHub Explorer API")
 
@@ -40,12 +41,22 @@ async def get_user_repositories(username: str = Path(max_length=USERNAME_MAX_LEN
                 "url": obj.get("html_url"),
                 "name": obj.get("name"),
                 "description": obj.get("description"),
-                "stars": obj.get("stargazers_count"),
-                "commits": get_commits_count(username, obj.get("name"))
-                # Getting count of commits this way may be slow.
-                # As an improvement we could gather all the repositories names
-                # and send requests to all of them asynchronously.
+                "stars": obj.get("stargazers_count")
             })
+
+        urls_queue = asyncio.Queue()
+        for i, obj in enumerate(results):
+            repository = obj['name']
+            url = COMMITS_URL.format(username=username, repository=repository)
+            await urls_queue.put({'idx': i, 'url': url})
+
+        await asyncio.gather(
+            asyncio.create_task(get_commit_count('1', urls_queue, results)),
+            asyncio.create_task(get_commit_count('2', urls_queue, results)),
+            asyncio.create_task(get_commit_count('3', urls_queue, results)),
+            asyncio.create_task(get_commit_count('4', urls_queue, results)),
+            asyncio.create_task(get_commit_count('5', urls_queue, results)),
+        )
         return results
 
     elif (

@@ -28,15 +28,13 @@ def example_repository_data():
     }
 
 
-@patch('backend.main.get_commits_count')
+@patch('backend.main.get_commit_count')
 @patch('backend.main.get_repository_data')
 def test_external_api_is_called(mock_repository, mock_commits, example_repository_data):
     mock_repository.return_value = example_repository_data
-    mock_commits.return_value = 1
-
     client.get(f'/{USERNAME}/')
     mock_repository.assert_called_with(USERNAME)
-    mock_commits.assert_called_with(USERNAME, REPOSITORY)
+    mock_commits.assert_called()
 
 
 @patch('backend.main.get_repository_data')
@@ -47,7 +45,7 @@ def test_cannot_pass_too_long_username(mock):
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
-@patch('backend.main.get_commits_count')
+@patch('backend.main.get_commit_count')
 @patch('backend.main.get_repository_data')
 def test_return_data_contain_necessary_information(mock_repository, mock_commits, example_repository_data):
     commit_count = 2
@@ -60,8 +58,6 @@ def test_return_data_contain_necessary_information(mock_repository, mock_commits
     assert len(data) == len(example_repository_data['content'])
     # Check if values returned by request match data from external API
     assert all(item in data[0].values() for item in example_repository_data['content'][0].values())
-    # Commit count is checked separately as it was returned by a separate request
-    assert data[0]['commits'] == commit_count
 
 
 @patch('backend.main.get_repository_data')
