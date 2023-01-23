@@ -73,13 +73,15 @@ def test_appropriate_response_is_given_for_non_existing_user(mock):
 
 
 @patch('backend.main.get_repository_data')
-@patch('backend.main.get_rate_reset_time')
-def test_api_rate_limit_information_is_returned(mock_rate, mock_repository):
-    mock_repository.return_value = {
+def test_api_rate_limit_information_is_returned(mock):
+    mock.return_value = {
         "status_code": 403,
-        "content": {"message": "API rate limit exceeded for..."}
+        "content": {"message": "API rate limit exceeded for..."},
+        "rate_limit": {
+            "remaining": 0,
+            "reset_time": (datetime.now() + timedelta(minutes=30)).timestamp()
+        }
     }
-    mock_rate.return_value = datetime.now() + timedelta(minutes=30)
     response = client.get(f'/{USERNAME}/')
     assert response.status_code == status.HTTP_403_FORBIDDEN
     content = json.loads(response.content)

@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException, Path, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from .models import Repository
-from .utils import COMMITS_URL, get_commit_count, get_rate_reset_time, get_repository_data
+from .utils import COMMITS_URL, get_commit_count, get_repository_data
 
 app = FastAPI(title="GitHub Explorer API")
 
@@ -44,6 +44,7 @@ async def get_user_repositories(username: str = Path(max_length=USERNAME_MAX_LEN
                 "stars": obj.get("stargazers_count")
             })
 
+        # Get commit count for each repository by making series of asynchornious requests
         urls_queue = asyncio.Queue()
         for i, obj in enumerate(results):
             repository = obj['name']
@@ -61,12 +62,12 @@ async def get_user_repositories(username: str = Path(max_length=USERNAME_MAX_LEN
 
     elif (
         data['status_code'] == status.HTTP_403_FORBIDDEN and
-        data['content']['message'].startswith("API rate limit exceeded")
+        data['rate_limit']['remaining'] == 0
     ):
         # If the API rate limit has been reached return information about when will it be reset.
         message = 'API rate limit exceeded, please try again'
-        reset_time = get_rate_reset_time()
-        if reset_time:
+        if data['rate_limit']['reset_time'] != 0:
+            reset_time = datetime.fromtimestamp(data['rate_limit']['reset_time'])
             wait_time = (reset_time - datetime.now()).seconds // 60
             message = message + f" in {wait_time} minutes."
         else:

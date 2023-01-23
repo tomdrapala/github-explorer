@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 
 import aiohttp
 import requests
@@ -15,16 +14,12 @@ def get_repository_data(username):
     response = requests.get(url)
     return {
         "status_code": response.status_code,
-        "content": json.loads(response.content)
+        "content": json.loads(response.content),
+        "rate_limit": {
+            "remaining": int(response.headers.get('X-RateLimit-Remaining') or 0),
+            "reset_time": int(response.headers.get('X-RateLimit-Reset') or 0)
+        }
     }
-
-
-def get_rate_reset_time():
-    response = requests.get('https://api.github.com/rate_limit')
-    response = json.loads(response.content)
-    reset = response.get('resources', {}).get('core', {}).get('reset')
-    if reset and isinstance(reset, int):
-        return datetime.fromtimestamp(reset)
 
 
 async def get_commit_count(num, urls_queue, data):
