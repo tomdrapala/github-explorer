@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 from typing import List
 
@@ -6,7 +5,7 @@ from fastapi import FastAPI, HTTPException, Path, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from .models import Repository
-from .utils import COMMITS_URL, get_commit_count, get_repository_data
+from .utils import get_repository_data, annotate_commit_count
 
 app = FastAPI(title="GitHub Explorer API")
 
@@ -44,25 +43,13 @@ async def get_user_repositories(username: str = Path(max_length=USERNAME_MAX_LEN
                 "stars": obj.get("stargazers_count")
             })
 
-        # Get commit count for each repository by making series of asynchornious requests
-        urls_queue = asyncio.Queue()
-        for i, obj in enumerate(results):
-            repository = obj['name']
-            url = COMMITS_URL.format(username=username, repository=repository)
-            await urls_queue.put({'idx': i, 'url': url})
-
-        await asyncio.gather(
-            asyncio.create_task(get_commit_count('1', urls_queue, results)),
-            asyncio.create_task(get_commit_count('2', urls_queue, results)),
-            asyncio.create_task(get_commit_count('3', urls_queue, results)),
-            asyncio.create_task(get_commit_count('4', urls_queue, results)),
-            asyncio.create_task(get_commit_count('5', urls_queue, results)),
-        )
+        # Get commit count for each repository
+        results = await annotate_commit_count(username, results)
         return results
 
     elif (
-        data['status_code'] == status.HTTP_403_FORBIDDEN and
-        data['rate_limit']['remaining'] == 0
+        data['status_code'] == status.HTTP_403_FORBIDDEN
+        and data['rate_limit']['remaining'] == 0
     ):
         # If the API rate limit has been reached return information about when will it be reset.
         message = 'API rate limit exceeded, please try again'

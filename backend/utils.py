@@ -1,6 +1,7 @@
 import json
 
 import aiohttp
+import asyncio
 import requests
 from fastapi import status
 
@@ -33,3 +34,20 @@ async def get_commit_count(num, urls_queue, data):
                     data[obj['idx']]['commits'] = count
             print(f"Returning from task {num}")
     return data
+
+
+async def annotate_commit_count(username, results):
+    urls_queue = asyncio.Queue()
+    for i, obj in enumerate(results):
+        repository = obj['name']
+        url = COMMITS_URL.format(username=username, repository=repository)
+        await urls_queue.put({'idx': i, 'url': url})
+
+    await asyncio.gather(
+        asyncio.create_task(get_commit_count('1', urls_queue, results)),
+        asyncio.create_task(get_commit_count('2', urls_queue, results)),
+        asyncio.create_task(get_commit_count('3', urls_queue, results)),
+        asyncio.create_task(get_commit_count('4', urls_queue, results)),
+        asyncio.create_task(get_commit_count('5', urls_queue, results)),
+    )
+    return results
