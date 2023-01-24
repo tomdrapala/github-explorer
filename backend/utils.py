@@ -1,6 +1,7 @@
 import json
-from datetime import datetime
 
+import aiohttp
+import asyncio
 import requests
 from fastapi import status
 
@@ -14,20 +15,39 @@ def get_repository_data(username):
     response = requests.get(url)
     return {
         "status_code": response.status_code,
-        "content": json.loads(response.content)
+        "content": json.loads(response.content),
+        "rate_limit": {
+            "remaining": int(response.headers.get('X-RateLimit-Remaining') or 0),
+            "reset_time": int(response.headers.get('X-RateLimit-Reset') or 0)
+        }
     }
 
 
-def get_commits_count(username, repository):
-    response = requests.get(COMMITS_URL.format(username=username, repository=repository))
-    if response.status_code == status.HTTP_200_OK:
-        data = json.loads(response.content)
-        return len(data)
+async def get_commit_count(num, urls_queue, data):
+    async with aiohttp.ClientSession() as session:
+        while not urls_queue.empty():
+            obj = await urls_queue.get()
+            async with session.get(obj['url']) as response:
+                await response.text()
+                if response.status == status.HTTP_200_OK:
+                    count = len(json.loads(response._body))
+                    data[obj['idx']]['commits'] = count
+            print(f"Returning from task {num}")
+    return data
 
 
-def get_rate_reset_time():
-    response = requests.get('https://api.github.com/rate_limit')
-    response = json.loads(response.content)
-    reset = response.get('resources', {}).get('core', {}).get('reset')
-    if reset and isinstance(reset, int):
-        return datetime.fromtimestamp(reset)
+async def annotate_commit_count(username, results):
+    urls_queue = asyncio.Queue()
+    for i, obj in enumerate(results):
+        repository = obj['name']
+        url = COMMITS_URL.format(username=username, repository=repository)
+        await urls_queue.put({'idx': i, 'url': url})
+
+    await asyncio.gather(
+        asyncio.create_task(get_commit_count('1', urls_queue, results)),
+        asyncio.create_task(get_commit_count('2', urls_queue, results)),
+        asyncio.create_task(get_commit_count('3', urls_queue, results)),
+        asyncio.create_task(get_commit_count('4', urls_queue, results)),
+        asyncio.create_task(get_commit_count('5', urls_queue, results)),
+    )
+    return results

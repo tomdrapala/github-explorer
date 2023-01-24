@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException, Path, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from .models import Repository
-from .utils import (get_commits_count, get_rate_reset_time, get_repository_data)
+from .utils import get_repository_data, annotate_commit_count
 
 app = FastAPI(title="GitHub Explorer API")
 
@@ -40,22 +40,21 @@ async def get_user_repositories(username: str = Path(max_length=USERNAME_MAX_LEN
                 "url": obj.get("html_url"),
                 "name": obj.get("name"),
                 "description": obj.get("description"),
-                "stars": obj.get("stargazers_count"),
-                "commits": get_commits_count(username, obj.get("name"))
-                # Getting count of commits this way may be slow.
-                # As an improvement we could gather all the repositories names
-                # and send requests to all of them asynchronously.
+                "stars": obj.get("stargazers_count")
             })
+
+        # Get commit count for each repository
+        results = await annotate_commit_count(username, results)
         return results
 
     elif (
-        data['status_code'] == status.HTTP_403_FORBIDDEN and
-        data['content']['message'].startswith("API rate limit exceeded")
+        data['status_code'] == status.HTTP_403_FORBIDDEN
+        and data['rate_limit']['remaining'] == 0
     ):
         # If the API rate limit has been reached return information about when will it be reset.
         message = 'API rate limit exceeded, please try again'
-        reset_time = get_rate_reset_time()
-        if reset_time:
+        if data['rate_limit']['reset_time'] != 0:
+            reset_time = datetime.fromtimestamp(data['rate_limit']['reset_time'])
             wait_time = (reset_time - datetime.now()).seconds // 60
             message = message + f" in {wait_time} minutes."
         else:
