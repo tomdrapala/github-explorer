@@ -18,6 +18,7 @@ export default ({
         name: {type: String, required: true},
         description: {type: String, required: false},
         stars: {type: Number, required: false},
+        commits: {type: String, required: false},
     }
 })
 </script>

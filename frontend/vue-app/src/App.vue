@@ -19,7 +19,6 @@
         {{ errorMessage }}
       </div>
     </div>
-    <!-- <h1 v-if="repositories">Repositories of {{ username }}</h1> -->
     <h1 v-if="(repositories.length > 0) && (username.length > 0)">Repositories of {{ username }}</h1>
     <ul>
       <li
@@ -225,7 +224,6 @@ input {
   font-size: 22px;
   line-height: 20px;
   transition: 0.3s;
-  /* transition: 3s; */
 }
 
 .closebtn:hover {

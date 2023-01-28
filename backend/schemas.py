@@ -9,5 +9,5 @@ class Repository(BaseModel):
     description: Union[str, None] = None
     url: Union[HttpUrl, None] = None
     stars: Union[int, None] = None
-    commits: Union[int, None] = None
+    commits: Union[str, None] = None
     # Using Union to make sure that code will work on older Python versions

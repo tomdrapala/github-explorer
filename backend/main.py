@@ -4,7 +4,7 @@ from typing import List
 from fastapi import FastAPI, HTTPException, Path, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from .models import Repository
+from .schemas import Repository
 from .utils import get_repository_data, annotate_commit_count
 
 app = FastAPI(title="GitHub Explorer API")
